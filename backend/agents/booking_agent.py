@@ -28,16 +28,17 @@ FLIGHTS (if requires_flight=true):
 - Exactly 3 options with different airlines (e.g. AirAsia AK, Malaysia Airlines MH, Batik Air OD).
 - "cost_myr"=per-person round-trip. departure.airport="KUL", return.airport=destination IATA.
 - Include departure/return date, time, airline, airline_iata, cost_myr.
-- "google_flights" URL with correct date.
 
-PER DAY (you MUST output EXACTLY {duration} days — EVERY day needs hotel and food):
+PER DAY — you MUST output EXACTLY {duration} days:
 - "day": N
-- "hotel": {{"name":"...","cost_myr":N,"rating":"4.x/5"}} — REQUIRED for EVERY day
-- "activities": [{{"name":"...","cost_myr":N,"schedule":"HH:MM-HH:MM","transport_to_next":{{"mode":"walk|bus|metro|taxi","duration":"X min","estimated_cost_myr":0}}}}]
-- For metro transport: specify the exact line/route name (e.g. "Tokyo Metro Ginza Line", "JR Yamanote Line")
-- "food_recommendations": [{{"name":"...","avg_cost_myr":N}}]
-- "daily_food_cost_myr": N
-- "transportation": {{"route":"summary of day transit","cost_myr":N}}
+- "hotel": {{"name":"<real hotel name>","cost_myr":<number, NEVER 0>,"rating":"4.x/5"}}
+  CRITICAL: EVERY single day MUST have a hotel with a realistic non-zero cost_myr. No exceptions.
+  If consecutive days use the same hotel, repeat the hotel object anyway.
+- "activities": [{{"name":"...","cost_myr":N,"schedule":"HH:MM-HH:MM"}}]
+- "food_recommendations": EXACTLY 3 restaurants/food spots per day with REALISTIC costs:
+  [{{"name":"<restaurant name>","avg_cost_myr":<number, NEVER 0>,"type":"breakfast|lunch|dinner"}}]
+  Example: [{{"name":"Ichiran Ramen","avg_cost_myr":15,"type":"lunch"}},{{"name":"Sushi Dai","avg_cost_myr":25,"type":"dinner"}},{{"name":"7-Eleven Onigiri","avg_cost_myr":5,"type":"breakfast"}}]
+- "daily_food_cost_myr": <sum of all food avg_cost_myr, NEVER 0>
 
 Keep responses SHORT. Realistic costs for KUL→{dest}."""
 

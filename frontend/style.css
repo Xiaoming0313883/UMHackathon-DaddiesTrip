@@ -442,7 +442,7 @@ button:active {
 .daily-modules {
     margin-top: 1rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 0.75rem;
     padding-top: 1rem;
     border-top: 1px solid rgba(0,0,0,0.06);
@@ -456,11 +456,10 @@ button:active {
 }
 
 .module-box h5 {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
 
 .module-box p {
@@ -468,6 +467,35 @@ button:active {
     color: var(--text-primary);
     line-height: 1.4;
     margin-bottom: 0.4rem;
+}
+
+/* Food items */
+.food-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.food-item {
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.03);
+    font-size: 0.85rem;
+}
+.food-item:last-child {
+    border-bottom: none;
+}
+.food-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+.food-type-tag {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: rgba(0,113,227,0.08);
+    color: var(--accent);
+    text-transform: capitalize;
+    white-space: nowrap;
 }
 
 .module-box .cost-tag {

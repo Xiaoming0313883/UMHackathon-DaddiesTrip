@@ -552,98 +552,94 @@ function renderItinerary(itinerary, destinationReview, numPax) {
         }
 
 
-        // Hotel
-        const hotelName = day.hotel ? day.hotel.name : 'Not Specified';
-        const hotelCostPerNight = day.hotel ? day.hotel.cost_myr : 0;
-        const hotelRating = day.hotel?.rating ? `<span style="color:#f5b041;">★ ${day.hotel.rating}</span>` : '';
-        const hotelReview = day.hotel?.review_comment ? `<span style="font-size:0.8em; color:var(--text-secondary); font-style:italic;">"${day.hotel.review_comment}"</span>` : '';
-        const hotelLink = day.hotel?.source || `https://www.google.com/maps/search/${encodeURIComponent(hotelName + ' ' + day.location)}`;
-        const hotelLinkHtml = `<a href="${hotelLink}" target="_blank" rel="noopener" class="module-link">View ↗</a>`;
+        // Hotel — fallback if missing
+        let hotelName, hotelCostPerNight, hotelRating, hotelReview, hotelLinkHtml;
+        if (day.hotel && day.hotel.name && day.hotel.name !== 'Not Specified') {
+            hotelName = day.hotel.name;
+            hotelCostPerNight = day.hotel.cost_myr || 0;
+            hotelRating = day.hotel.rating ? `<span style="color:#f5b041;">★ ${day.hotel.rating}</span>` : '';
+            hotelReview = day.hotel.review_comment ? `<span style="font-size:0.8em; color:var(--text-secondary); font-style:italic;">"${day.hotel.review_comment}"</span>` : '';
+            const hotelLink = day.hotel.source || `https://www.google.com/maps/search/${encodeURIComponent(hotelName + ' ' + day.location)}`;
+            hotelLinkHtml = `<a href="${hotelLink}" target="_blank" rel="noopener" class="module-link">View ↗</a>`;
+        } else {
+            // Use previous day's hotel if available
+            const prevDay = dayIdx > 0 ? itinerary[dayIdx - 1] : null;
+            if (prevDay && prevDay.hotel && prevDay.hotel.name) {
+                hotelName = prevDay.hotel.name;
+                hotelCostPerNight = prevDay.hotel.cost_myr || 0;
+                hotelRating = prevDay.hotel.rating ? `<span style="color:#f5b041;">★ ${prevDay.hotel.rating}</span>` : '';
+                hotelReview = '';
+                const hotelLink = `https://www.google.com/maps/search/${encodeURIComponent(hotelName + ' ' + dayLocation)}`;
+                hotelLinkHtml = `<a href="${hotelLink}" target="_blank" rel="noopener" class="module-link">View ↗</a>`;
+            } else {
+                hotelName = `Hotel in ${dayLocation}`;
+                hotelCostPerNight = 80; // reasonable default
+                hotelRating = '';
+                hotelReview = '';
+                hotelLinkHtml = `<a href="https://www.google.com/maps/search/hotel+${encodeURIComponent(dayLocation)}" target="_blank" rel="noopener" class="module-link">Search Hotels ↗</a>`;
+            }
+        }
 
-        // Food
-        let foodRecsHtml = 'No recommendations';
+        // Food — clean layout with meal type tags
+        let foodItemsHtml = '';
         let foodCostPerPax = day.daily_food_cost_myr || 0;
 
-        if (day.food_recommendations && Array.isArray(day.food_recommendations)) {
+        if (day.food_recommendations && Array.isArray(day.food_recommendations) && day.food_recommendations.length > 0) {
             if (typeof day.food_recommendations[0] === 'string') {
-                foodRecsHtml = day.food_recommendations.join(', ');
+                foodItemsHtml = day.food_recommendations.map(f => `<div class="food-item"><span class="food-name">${f}</span></div>`).join('');
             } else {
-                foodRecsHtml = day.food_recommendations.map(f => {
-                    const fName = f.name || '';
-                    const fRating = f.rating ? `<span style="color:#f5b041;">★ ${f.rating}</span>` : '';
-                    const fReview = f.review_comment ? `<span style="font-size:0.8em; color:var(--text-secondary); font-style:italic;">"${f.review_comment}"</span>` : '';
-                    const fCostPax = f.avg_cost_myr || 0;
-                    const fCostTag = fCostPax ? `<span class="cost-tag" style="font-size:0.75rem;">RM ${fCostPax}/pax</span>` : '';
-                    const fPriceRange = f.price_range ? `<span style="font-size:0.8em; color:var(--text-secondary);">${f.price_range}</span>` : '';
-                    const fLink = f.source || `https://www.google.com/maps/search/${encodeURIComponent(fName + ' ' + day.location)}`;
-                    const fLinkHtml = `<a href="${fLink}" target="_blank" rel="noopener" class="module-link" style="font-size:0.8rem;">View ↗</a>`;
-                    return `<div style="margin-bottom:0.3rem;"><strong>${fName}</strong> ${fRating} ${fCostTag} ${fPriceRange}<br>${fReview} ${fLinkHtml}</div>`;
-                }).join('<hr style="margin:3px 0; border:0; border-top:1px solid rgba(0,0,0,0.04);">');
+                const typeEmoji = { breakfast: '🌅', lunch: '☀️', dinner: '🌙', snack: '🍡', supper: '🌙' };
+                foodItemsHtml = day.food_recommendations.map(f => {
+                    const fName = f.name || 'Local food';
+                    const fCost = f.avg_cost_myr || 0;
+                    const fType = f.type || '';
+                    const typeIcon = typeEmoji[fType.toLowerCase()] || '🍽️';
+                    const typeTag = fType ? `<span class="food-type-tag">${typeIcon} ${fType}</span>` : '';
+                    return `<div class="food-item">
+                        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                            ${typeTag}
+                            <span class="food-name">${fName}</span>
+                            ${fCost > 0 ? `<span class="cost-tag" style="font-size:0.75rem;">RM ${fCost}/pax</span>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
 
+                // Calculate total food cost from items if daily_food_cost_myr is 0
                 let calculatedCost = day.food_recommendations.reduce((acc, f) => acc + (f.avg_cost_myr || 0), 0);
                 if (calculatedCost > 0) foodCostPerPax = calculatedCost;
             }
         }
-        const transRoute = day.transportation ? day.transportation.route : 'Local transit';
-        const transCostPerPax = day.transportation ? day.transportation.cost_myr : 0;
+        if (!foodItemsHtml || foodItemsHtml.trim() === '') {
+            foodItemsHtml = '<div class="food-item"><span class="food-name" style="color:var(--text-secondary); font-style:italic;">No recommendations</span></div>';
+        }
 
         // Calculate day totals
-        const dayHotelTotal = hotelCostPerNight * numPax; // hotel per night x pax (simplified)
+        const dayHotelTotal = hotelCostPerNight * numPax;
         const dayFoodTotal = foodCostPerPax * numPax;
-        const dayTransTotal = transCostPerPax * numPax;
-
-        // Build transit summary from all activity transport_to_next entries
-        let transitModes = {};
-        let transitTotalCost = 0;
-        dayActivities.forEach(act => {
-            const tn = act.transport_to_next;
-            if (tn && tn.mode) {
-                const mode = tn.mode.toLowerCase();
-                if (!transitModes[mode]) transitModes[mode] = { count: 0, cost: 0, notes: [] };
-                transitModes[mode].count++;
-                transitModes[mode].cost += (tn.estimated_cost_myr || 0);
-                if (tn.notes && !transitModes[mode].notes.includes(tn.notes)) {
-                    transitModes[mode].notes.push(tn.notes);
-                }
-                transitTotalCost += (tn.estimated_cost_myr || 0);
-            }
-        });
-        let transitSummaryHtml = '';
-        const modeEntries = Object.entries(transitModes);
-        if (modeEntries.length > 0) {
-            transitSummaryHtml = '<div style="font-size:0.8em; margin:4px 0; color:var(--text-secondary);">';
-            modeEntries.forEach(([mode, info]) => {
-                const icon = modeIcon[mode] || '➡️';
-                const notesStr = info.notes.length > 0 ? ` (${info.notes.join(', ')})` : '';
-                transitSummaryHtml += `<div>${icon} ${mode}${notesStr} × ${info.count} — RM ${info.cost}</div>`;
-            });
-            transitSummaryHtml += '</div>';
-        }
 
         card.innerHTML = `
             <h4>Day ${dayNum}: ${dayLocation}</h4>
             <ul>${activitiesHtml}</ul>
             <div class="daily-modules">
                 <div class="module-box">
-                    <h5>Stay</h5>
-                    <p>${hotelName} ${hotelRating}</p>
+                    <h5>🏨 Stay</h5>
+                    <p style="font-weight:600; margin-bottom:2px;">${hotelName}</p>
+                    <div style="display:flex; gap:4px; align-items:center; flex-wrap:wrap; margin-bottom:2px;">
+                        ${hotelRating}
+                        ${hotelLinkHtml}
+                    </div>
                     ${hotelReview}
-                    ${hotelLinkHtml}
-                    <span class="cost-tag">RM ${hotelCostPerNight}/night/pax</span>
-                    <span style="font-size:0.75em; color:var(--text-secondary);">Total: RM ${dayHotelTotal}</span>
+                    <div style="margin-top:4px;">
+                        <span class="cost-tag">RM ${hotelCostPerNight}/night</span>
+                    </div>
                 </div>
                 <div class="module-box">
-                    <h5>Eat</h5>
-                    <div style="margin-bottom:0.3rem; font-size:0.85rem;">${foodRecsHtml}</div>
-                    <span class="cost-tag">RM ${foodCostPerPax}/pax/day</span>
-                    <span style="font-size:0.75em; color:var(--text-secondary);">Total: RM ${dayFoodTotal}</span>
-                </div>
-                <div class="module-box">
-                    <h5>Transit</h5>
-                    <p>${transRoute}</p>
-                    ${transitSummaryHtml}
-                    <span class="cost-tag">RM ${transCostPerPax}/pax/day</span>
-                    <span style="font-size:0.75em; color:var(--text-secondary);">Total: RM ${dayTransTotal}</span>
+                    <h5>🍽️ Eat</h5>
+                    <div class="food-list">${foodItemsHtml}</div>
+                    <div style="margin-top:4px; border-top:1px solid rgba(0,0,0,0.06); padding-top:4px;">
+                        <span class="cost-tag">RM ${foodCostPerPax}/pax/day</span>
+                        <span style="font-size:0.75em; color:var(--text-secondary);">Total: RM ${dayFoodTotal}</span>
+                    </div>
                 </div>
             </div>
         `;
