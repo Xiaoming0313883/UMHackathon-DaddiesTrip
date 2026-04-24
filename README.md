@@ -84,16 +84,24 @@ Z_AI_BASE_URL=https://open.bigmodel.cn/api/paas/v4/chat/completions
 Z_AI_MODEL=glm-4
 ```
 
-### 3. Start the Server
-Navigate to the root directory and start the FastAPI server with Server-Sent Event (SSE) stream support.
+### 3. Start the Backend (FastAPI)
+Navigate to the root directory and start the FastAPI server.
 ```bash
 uvicorn backend.main:app --reload
 ```
 
-### 4. Access the Client
-Open your web browser and navigate to:
+### 4. Start the Frontend (Vite)
+Navigate to the `frontend` directory, install dependencies, and start the development server.
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 5. Access the Client
+Open your web browser and navigate to the Vite development server:
 ```text
-http://localhost:8000
+http://localhost:5173
 ```
 
 ---
