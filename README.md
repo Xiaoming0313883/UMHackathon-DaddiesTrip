@@ -16,6 +16,12 @@
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
   [![Railway](https://img.shields.io/badge/Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app/)
   [![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
+
+  <br />
+
+  <p><em>DaddiesTrip — Sit back, relax, let daddy handle the itinerary.</em></p>
+
+  <blockquote><strong>"SugarDaddies: We take care of everything. Especially you."</strong></blockquote>
 </div>
 
 <br />
