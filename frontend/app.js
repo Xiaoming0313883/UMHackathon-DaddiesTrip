@@ -1,3 +1,6 @@
+// API base URL — set via window.VITE_API_BASE_URL before this script loads, or leave empty for same-origin
+var API_BASE = window.VITE_API_BASE_URL || '';
+
 document.getElementById('generate-btn').addEventListener('click', async () => {
     const prompt = document.getElementById('prompt-input').value;
     if (!prompt) return;
@@ -32,7 +35,7 @@ document.getElementById('generate-btn').addEventListener('click', async () => {
     startProgress();
 
     try {
-        const response = await fetch('/api/plan-trip-stream', {
+        const response = await fetch(API_BASE + '/api/plan-trip-stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
@@ -749,7 +752,7 @@ document.getElementById('settle-btn').addEventListener('click', async () => {
     statusText.innerText = 'Processing...';
     setTimeout(async () => {
         try {
-            const response = await fetch('/api/settle', {
+            const response = await fetch(API_BASE + '/api/settle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ group_id: "group_123", user_id: "user_1", card_number: cardInput })

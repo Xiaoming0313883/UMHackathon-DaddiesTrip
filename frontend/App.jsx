@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Plane, Calendar, Receipt, Send, ChevronRight, Mic, MicOff, AlertCircle, Loader2, X, AlertTriangle, ClipboardList, Download, Pencil } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function App() {
   const [activeTab, setActiveTab] = useState('plan');
 
@@ -235,7 +237,7 @@ export default function App() {
     let isClarification = false;
 
     try {
-      const response = await fetch('/api/plan-trip-stream', {
+      const response = await fetch(`${API_BASE}/api/plan-trip-stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt })
@@ -380,7 +382,7 @@ export default function App() {
     setSettleMessage('Processing...');
 
     try {
-      const response = await fetch('/api/settle', {
+      const response = await fetch(`${API_BASE}/api/settle`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -429,7 +431,7 @@ export default function App() {
     };
 
     try {
-      const response = await fetch('/api/amend-item', {
+      const response = await fetch(`${API_BASE}/api/amend-item`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ item_type: itemType, current_item, user_preference: editPreference, trip_summary })
